@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 use lasercat::{domain::Project, import, storage};
 use std::{fs::File, io::Write, path::Path};
-use zip::{write::FileOptions, ZipWriter};
+use zip::{write::SimpleFileOptions, ZipWriter};
 
 fn archive(path: &Path, entries: &[(&str, &[u8])]) {
     let mut zip = ZipWriter::new(File::create(path).unwrap());
     for (name, bytes) in entries {
-        zip.start_file(*name, FileOptions::default()).unwrap();
+        zip.start_file(*name, SimpleFileOptions::default()).unwrap();
         zip.write_all(bytes).unwrap();
     }
     zip.finish().unwrap();
