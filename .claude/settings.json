@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(cargo fmt:*)",
+      "Bash(cargo clippy:*)",
+      "Bash(cargo test:*)",
+      "Bash(cargo build:*)",
+      "Bash(cargo doc:*)",
+      "Bash(cargo run --locked --example render_preview:*)",
+      "PowerShell(cargo fmt:*)",
+      "PowerShell(cargo clippy:*)",
+      "PowerShell(cargo test:*)",
+      "PowerShell(cargo build:*)",
+      "PowerShell(cargo doc:*)",
+      "PowerShell(cargo run --locked --example render_preview:*)",
+      "PowerShell(.\\scripts\\Test-Project.ps1:*)"
+    ],
+    "deny": [
+      "Bash(cargo run --example probe_connection:*)",
+      "Bash(cargo run --locked --example probe_connection:*)",
+      "PowerShell(cargo run --example probe_connection:*)",
+      "PowerShell(cargo run --locked --example probe_connection:*)",
+      "Bash(git push:*)",
+      "PowerShell(git push:*)"
+    ]
+  }
+}

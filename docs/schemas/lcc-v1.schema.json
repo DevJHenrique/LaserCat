@@ -1,0 +1,382 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LaserCat project manifest v1",
+  "description": "Manifest structure; use Rust validation for IDs, references, geometry, machine capabilities and resource budgets.",
+  "type": "object",
+  "required": [
+    "version",
+    "machine",
+    "assets",
+    "objects",
+    "next_id"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "machine": {
+      "$ref": "#/$defs/machine"
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/asset"
+      }
+    },
+    "objects": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/object"
+      }
+    },
+    "next_id": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 18446744073709551614
+    }
+  },
+  "$defs": {
+    "point": {
+      "type": "object",
+      "required": [
+        "x",
+        "y"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      }
+    },
+    "polyline": {
+      "type": "object",
+      "required": [
+        "points",
+        "closed",
+        "fill",
+        "fill_group",
+        "even_odd"
+      ],
+      "properties": {
+        "points": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/point"
+          }
+        },
+        "closed": {
+          "type": "boolean"
+        },
+        "fill": {
+          "type": "boolean"
+        },
+        "fill_group": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
+        },
+        "even_odd": {
+          "type": "boolean"
+        }
+      }
+    },
+    "geometry": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "Vector"
+          ],
+          "properties": {
+            "Vector": {
+              "type": "object",
+              "required": [
+                "paths",
+                "vector_safe"
+              ],
+              "properties": {
+                "paths": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/polyline"
+                  }
+                },
+                "vector_safe": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "Raster"
+          ],
+          "properties": {
+            "Raster": {
+              "type": "object",
+              "required": [
+                "pixel_width",
+                "pixel_height"
+              ],
+              "properties": {
+                "pixel_width": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4294967295
+                },
+                "pixel_height": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4294967295
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "machine": {
+      "type": "object",
+      "required": [
+        "name",
+        "width",
+        "height",
+        "homing",
+        "positioning",
+        "invert_x",
+        "invert_y",
+        "port",
+        "baud",
+        "configured"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "width": {
+          "type": "number"
+        },
+        "height": {
+          "type": "number"
+        },
+        "homing": {
+          "type": "boolean"
+        },
+        "positioning": {
+          "enum": [
+            "UserOrigin",
+            "Absolute"
+          ]
+        },
+        "invert_x": {
+          "type": "boolean"
+        },
+        "invert_y": {
+          "type": "boolean"
+        },
+        "port": {
+          "type": "string"
+        },
+        "baud": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
+        },
+        "configured": {
+          "type": "boolean"
+        }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "width",
+        "height",
+        "geometry",
+        "warnings"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        },
+        "name": {
+          "type": "string"
+        },
+        "width": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "height": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "geometry": {
+          "$ref": "#/$defs/geometry"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "operation": {
+      "type": "object",
+      "required": [
+        "kind",
+        "enabled",
+        "power",
+        "speed",
+        "passes",
+        "spacing",
+        "overscan",
+        "brightness",
+        "contrast",
+        "inverted",
+        "dither",
+        "constant_power",
+        "order"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "Cut",
+            "Line",
+            "Fill",
+            "Raster"
+          ]
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "power": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "speed": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 100000
+        },
+        "passes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "spacing": {
+          "type": "number",
+          "minimum": 0.05,
+          "maximum": 10
+        },
+        "overscan": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 20
+        },
+        "brightness": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "contrast": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "inverted": {
+          "type": "boolean"
+        },
+        "dither": {
+          "type": "boolean"
+        },
+        "constant_power": {
+          "type": "boolean"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": -2147483648,
+          "maximum": 2147483647
+        }
+      }
+    },
+    "object": {
+      "type": "object",
+      "required": [
+        "id",
+        "asset_id",
+        "name",
+        "x",
+        "y",
+        "width",
+        "height",
+        "rotation",
+        "mirror_x",
+        "mirror_y",
+        "lock_ratio",
+        "locked",
+        "operations"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        },
+        "asset_id": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        },
+        "name": {
+          "type": "string"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "width": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "height": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "rotation": {
+          "type": "number"
+        },
+        "mirror_x": {
+          "type": "boolean"
+        },
+        "mirror_y": {
+          "type": "boolean"
+        },
+        "lock_ratio": {
+          "type": "boolean"
+        },
+        "locked": {
+          "type": "boolean"
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/operation"
+          }
+        }
+      }
+    }
+  }
+}

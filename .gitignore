@@ -1,0 +1,20 @@
+/target
+*.laser.tmp
+*.lcc.tmp
+*.pdb
+/dist
+
+
+# Local credentials, recovery and editor state
+.env
+.env.*
+!.env.example
+/device.json
+/recovery.lcc
+/recovery.laser
+.vs/
+.DS_Store
+Thumbs.db
+
+# Personal agent settings (shared settings live in .claude/settings.json)
+.claude/settings.local.json

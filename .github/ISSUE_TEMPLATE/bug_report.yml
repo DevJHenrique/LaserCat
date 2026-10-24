@@ -1,0 +1,32 @@
+name: Bug report
+description: Report a reproducible LaserCat issue.
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Problem and expected outcome
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Include a minimal project without private data when possible.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: LaserCat version and operating system
+    validations:
+      required: true
+  - type: textarea
+    id: device
+    attributes:
+      label: Simulator or hardware
+      description: Include controller, firmware, and whether this was a physical test. Exclude credentials/network settings.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs and images
+      description: Remove personal information before attaching files.

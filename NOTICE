@@ -1,0 +1,15 @@
+LaserCat
+Copyright (c) 2026 LaserCat contributors
+
+This release is licensed under the GNU Affero General Public License,
+version 3 only (SPDX: AGPL-3.0-only). See LICENSE.
+The software is provided without warranty; redistribution is permitted
+under the terms of that license.
+
+Earlier versions were offered under MIT. Existing permissions for those
+versions remain in effect. Their notice is retained in LICENSES/MIT-legacy.txt.
+Third-party components retain their respective notices and licenses.
+
+Release packages include LaserCat-<version>-source.zip with this release's
+source, build/installation scripts, lockfile and vendored dependencies.
+See docs/LICENSING.md and docs/DEVELOPMENT.md for details.

@@ -1,0 +1,13 @@
+# Store text as LF in the repository; checkouts use the platform default.
+# Windows scripts stay CRLF so they run unchanged after checkout.
+* text=auto
+*.ps1 text eol=crlf
+*.cs text eol=crlf
+
+# Project archives are ZIP files, never text (see docs/FILE_FORMAT.md).
+*.lcc binary
+*.laser binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
