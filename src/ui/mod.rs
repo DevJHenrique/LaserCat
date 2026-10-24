@@ -747,6 +747,30 @@ mod tests {
         frame(&mut app, &ctx, vec![]);
     }
     #[test]
+    fn mouse_wheel_over_the_bed_zooms_one_notch_and_shift_wheel_does_not() {
+        let ctx = egui::Context::default();
+        let mut app = LaserApp::demo(&ctx);
+        frame(&mut app, &ctx, vec![]);
+        let (origin, _) = app.last_view.unwrap();
+        let over_bed = origin + Vec2::new(20., -20.);
+        let wheel = |shift| egui::Event::MouseWheel {
+            unit: egui::MouseWheelUnit::Line,
+            delta: Vec2::new(0., 1.),
+            phase: egui::TouchPhase::Move,
+            source: egui::MouseWheelSource::Wheel,
+            modifiers: egui::Modifiers {
+                shift,
+                ..Default::default()
+            },
+        };
+        frame(&mut app, &ctx, vec![egui::Event::PointerMoved(over_bed)]);
+        frame(&mut app, &ctx, vec![wheel(true)]);
+        assert_eq!(app.zoom, 1.);
+        frame(&mut app, &ctx, vec![wheel(false)]);
+        // One line is 40 points, as in egui 0.31; zoom grows by exp(40 * 0.002).
+        assert!((app.zoom - 0.08_f32.exp()).abs() < 1e-5, "{}", app.zoom);
+    }
+    #[test]
     fn dragging_an_object_invalidates_the_preview_and_can_be_undone() {
         let ctx = egui::Context::default();
         let mut app = LaserApp::demo(&ctx);
