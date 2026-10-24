@@ -14,6 +14,7 @@
 - Overlap warnings only consider objects with enabled operations.
 - Order nested cut contours with a bounding-box prefilter to keep planning fast for drawings with many paths.
 - Reject raster assets with zero pixel dimensions during project validation.
+- Include the OFL-1.1, Ubuntu Font License, and Hack license texts of the fonts egui embeds (`epaint_default_fonts`) in `THIRD_PARTY_NOTICES.txt`; `scripts/Generate-Notices.ps1` previously skipped them.
 - Make `scripts/Test-Project.ps1` work when its output is redirected under Windows PowerShell 5.1.
 - Add `tests/architecture.rs` to enforce module dependency rules.
 - Add the agent toolkit (`.claude/` settings, review subagents, skills), `docs/AI_AGENTS.md`, a scoped-task issue template, Dependabot, a code of conduct, `.gitattributes`, `.editorconfig`, and a Portuguese README.
