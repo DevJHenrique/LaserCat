@@ -2,15 +2,16 @@
 use super::*;
 
 impl LaserApp {
-    pub(super) fn top(&mut self, ctx: &egui::Context) {
-        egui::TopBottomPanel::top("application-menu")
-            .exact_height(31.)
+    pub(super) fn top(&mut self, root: &mut egui::Ui) {
+        let ctx = &root.ctx().clone();
+        egui::Panel::top("application-menu")
+            .exact_size(31.)
             .frame(
                 egui::Frame::NONE
                     .fill(Color32::from_rgb(35, 45, 62))
                     .inner_margin(egui::Margin::symmetric(9, 0)),
             )
-            .show(ctx, |ui| {
+            .show(root, |ui| {
                 ui.style_mut().visuals = egui::Visuals::dark();
                 ui.style_mut().spacing.item_spacing = Vec2::new(8., 0.);
                 ui.horizontal(|ui| {
@@ -21,7 +22,7 @@ impl LaserApp {
                         ui.add_enabled_ui(!self.locked(), |ui| {
                             if ui.button(tr("New project")).clicked() {
                                 self.request_replace(Replace::New, ctx);
-                                ui.close_menu();
+                                ui.close();
                             }
                             if ui.button(tr("Open project…")).clicked() {
                                 if let Some(path) = rfd::FileDialog::new()
@@ -31,24 +32,24 @@ impl LaserApp {
                                 {
                                     self.request_replace(Replace::Open(path), ctx);
                                 }
-                                ui.close_menu();
+                                ui.close();
                             }
                             if ui.button(tr("Save project")).clicked() {
                                 self.save(ctx, false);
-                                ui.close_menu();
+                                ui.close();
                             }
                             if ui.button(tr("Save as…")).clicked() {
                                 let old = self.path.take();
                                 if !self.save(ctx, false) {
                                     self.path = old;
                                 }
-                                ui.close_menu();
+                                ui.close();
                             }
                             ui.separator();
                             if ui.button(tr("Import SVG / image…")).clicked() {
                                 self.mode = Mode::Prepare;
                                 self.pick_import(ctx);
-                                ui.close_menu();
+                                ui.close();
                             }
                             if ui
                                 .add_enabled(
@@ -59,13 +60,13 @@ impl LaserApp {
                             {
                                 self.export_open = true;
                                 self.export_smax = self.snapshot.smax.unwrap_or(1000.);
-                                ui.close_menu();
+                                ui.close();
                             }
                         });
                         ui.separator();
                         if ui.button(tr("License and source code…")).clicked() {
                             self.license_open = true;
-                            ui.close_menu();
+                            ui.close();
                         }
                     });
                     ui.menu_button(tr("Language"), |ui| {
@@ -73,7 +74,7 @@ impl LaserApp {
                             let current = i18n::language() == language;
                             if ui.radio(current, language.native_name()).clicked() {
                                 self.set_language(language);
-                                ui.close_menu();
+                                ui.close();
                             }
                         }
                     });
@@ -130,10 +131,10 @@ impl LaserApp {
                     });
                 });
             });
-        egui::TopBottomPanel::top("workspace-tabs")
-            .exact_height(39.)
+        egui::Panel::top("workspace-tabs")
+            .exact_size(39.)
             .frame(egui::Frame::NONE.fill(HEADER))
-            .show(ctx, |ui| {
+            .show(root, |ui| {
                 ui.spacing_mut().item_spacing = Vec2::ZERO;
                 ui.horizontal(|ui| {
                     if nav_tab(ui, Icon::Box, "", self.mode == Mode::Prepare, 40.).clicked() {
@@ -151,7 +152,7 @@ impl LaserApp {
                             icon,
                             label,
                             self.mode == mode,
-                            if ui.ctx().screen_rect().width() < 1200. {
+                            if ui.ctx().content_rect().width() < 1200. {
                                 122.
                             } else {
                                 136.
@@ -202,8 +203,8 @@ impl LaserApp {
                 });
             });
     }
-    pub(super) fn status_bar(&mut self, ctx: &egui::Context) {
-        egui::TopBottomPanel::bottom("status-bar").min_height(32.).show(ctx,|ui|{
+    pub(super) fn status_bar(&mut self, root: &mut egui::Ui) {
+        egui::Panel::bottom("status-bar").min_size(32.).show(root,|ui|{
             ui.horizontal_wrapped(|ui|{
                 ui.colored_label(if self.snapshot.state==State::Ready{ACCENT}else{ORANGE},self.snapshot.state.label());
                 if self.snapshot.total>0{ui.add(egui::ProgressBar::new(self.snapshot.accepted as f32/self.snapshot.total.max(1) as f32).desired_width(145.).text(trf!("{accepted} / {total} accepted", accepted = self.snapshot.accepted, total = self.snapshot.total)));}
@@ -223,7 +224,7 @@ impl LaserApp {
         });
     }
     pub(super) fn shortcuts(&mut self, ctx: &egui::Context) {
-        if self.locked() || ctx.wants_keyboard_input() || self.mode != Mode::Prepare {
+        if self.locked() || ctx.egui_wants_keyboard_input() || self.mode != Mode::Prepare {
             return;
         }
         let input = ctx.input(|i| {

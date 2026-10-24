@@ -31,15 +31,15 @@ fn main() {
             time: Some(frame as f64 / 60.),
             ..Default::default()
         };
-        let result = ctx.run(raw, |ctx| app.draw(ctx));
-        for (id, delta) in &result.textures_delta.set {
-            let image = match &delta.image {
-                ImageData::Color(img) => img.as_ref().clone(),
-                ImageData::Font(img) => ColorImage {
-                    size: img.size,
-                    pixels: img.srgba_pixels(None).collect(),
-                },
-            };
+        let mut result = ctx.run_ui(raw, |ui| app.draw(ui));
+        for (id, delta) in result
+            .textures_delta
+            .set
+            .iter()
+            .flat_map(|(id, deltas)| deltas.iter().map(move |delta| (id, delta)))
+        {
+            let ImageData::Color(image) = &delta.image;
+            let image = image.as_ref().clone();
             if let Some([x, y]) = delta.pos {
                 let target = textures.get_mut(id).unwrap();
                 for row in 0..image.size[1] {
@@ -52,6 +52,8 @@ fn main() {
                 textures.insert(*id, image);
             }
         }
+        // The deltas were applied to `textures` above.
+        result.textures_delta.clear();
         output = Some(result);
     }
     let output = output.unwrap();

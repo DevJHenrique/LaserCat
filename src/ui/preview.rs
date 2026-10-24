@@ -2,17 +2,18 @@
 use super::*;
 
 impl LaserApp {
-    pub(super) fn preview_panel(&mut self, ctx: &egui::Context) {
-        let width = if ctx.screen_rect().width() < 1200. {
+    pub(super) fn preview_panel(&mut self, root: &mut egui::Ui) {
+        let ctx = &root.ctx().clone();
+        let width = if ctx.content_rect().width() < 1200. {
             265.
         } else {
             315.
         };
-        egui::SidePanel::right("preview-information")
-            .exact_width(width)
+        egui::Panel::right("preview-information")
+            .exact_size(width)
             .resizable(false)
             .frame(egui::Frame::NONE.fill(CANVAS).inner_margin(8.))
-            .show(ctx, |ui| {
+            .show(root, |ui| {
                 ui.style_mut().visuals = egui::Visuals::dark();
                 ui.style_mut().visuals.override_text_color = Some(Color32::from_gray(235));
                 let card = || {
