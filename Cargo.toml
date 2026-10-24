@@ -1,6 +1,6 @@
 [package]
 name = "lasercat"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 rust-version = "1.97"
 description = "An offline visual workspace for GRBL laser cutting and engraving"

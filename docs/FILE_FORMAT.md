@@ -1,6 +1,6 @@
 # LaserCat project format (`.lcc`)
 
-This specification describes implemented **manifest v1**, used by LaserCat 0.2.1. Application and manifest versions are independent. Reference implementation: [storage](../src/storage.rs), [domain](../src/domain.rs), and the auxiliary [JSON Schema](schemas/lcc-v1.schema.json).
+This specification describes implemented **manifest v1**, used by LaserCat 0.2.2. Application and manifest versions are independent. Reference implementation: [storage](../src/storage.rs), [domain](../src/domain.rs), and the auxiliary [JSON Schema](schemas/lcc-v1.schema.json).
 
 ## Container
 

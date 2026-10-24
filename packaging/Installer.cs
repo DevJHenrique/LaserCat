@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Windows.Forms;
 
 [assembly: AssemblyTitle("LaserCat Installer")]
-[assembly: AssemblyVersion("0.2.1.0")]
+[assembly: AssemblyVersion("0.2.2.0")]
 internal sealed class Installer : Form {
     private readonly TextBox destination = new TextBox();
     private readonly CheckBox shortcuts = new CheckBox();
@@ -17,7 +17,7 @@ internal sealed class Installer : Form {
         Application.Run(new Installer());
     }
     private Installer() {
-        Text = "Install LaserCat 0.2.1";
+        Text = "Install LaserCat 0.2.2";
         ClientSize = new Size(590, 285);
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false; StartPosition = FormStartPosition.CenterScreen;

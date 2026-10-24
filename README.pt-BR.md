@@ -20,7 +20,7 @@ Esta é uma tradução do README. A documentação de referência (arquitetura, 
 A interface está disponível em **inglês** (padrão) e **português do Brasil**: troque pelo menu **Language / Idioma** na barra superior. A escolha fica salva neste computador.
 
 > [!WARNING]
-> **Desenvolvimento inicial (0.2.1).** Windows x64 é a única plataforma validada. Os fluxos de máquina são testados com um simulador GRBL; compatibilidade e resultados físicos devem ser conferidos pelo operador no próprio equipamento. Controles de software nunca substituem a parada de emergência física, o enclausuramento e a proteção ocular.
+> **Desenvolvimento inicial (0.2.2).** Windows x64 é a única plataforma validada. Os fluxos de máquina são testados com um simulador GRBL; compatibilidade e resultados físicos devem ser conferidos pelo operador no próprio equipamento. Controles de software nunca substituem a parada de emergência física, o enclausuramento e a proteção ocular.
 
 ## Por que o LaserCat
 

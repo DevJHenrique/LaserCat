@@ -16,7 +16,7 @@ The interface is inspired by [OrcaSlicer](https://github.com/OrcaSlicer/OrcaSlic
 ![LaserCat workspace](docs/screenshots/workspace.png)
 
 > [!WARNING]
-> **Early development (0.2.1).** Windows x64 is the only validated platform. Machine workflows are tested against a GRBL simulator; compatibility and physical results must be checked by the operator on their own equipment. Software controls never replace the machine's physical emergency stop, enclosure, and eye protection.
+> **Early development (0.2.2).** Windows x64 is the only validated platform. Machine workflows are tested against a GRBL simulator; compatibility and physical results must be checked by the operator on their own equipment. Software controls never replace the machine's physical emergency stop, enclosure, and eye protection.
 
 ## Contents
 
