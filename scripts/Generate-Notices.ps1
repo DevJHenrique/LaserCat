@@ -14,7 +14,12 @@ foreach ($dependency in ($metadata.packages | Where-Object source | Sort-Object 
     [void]$noticeText.AppendLine("Source: https://crates.io/crates/$($dependency.name)/$($dependency.version)")
     [void]$noticeText.AppendLine("Upstream: $($dependency.repository)")
     $dependencyRoot = Split-Path -Parent $dependency.manifest_path
-    $licenseFiles = Get-ChildItem -LiteralPath $dependencyRoot -File -Recurse | Where-Object { $_.Name -match '(?i)(licen[sc]e|copying|notice)' -and $_.Extension -notin '.rs','.c','.h','.toml','.json','.lock','.ttf','.otf','.png','.jpg' }
+    # Embedded fonts ship their licenses as OFL.txt/UFL.txt or as a .txt named after the font file.
+    $licenseFiles = Get-ChildItem -LiteralPath $dependencyRoot -File -Recurse | Where-Object {
+        $isLicenseName = $_.Name -match '(?i)(licen[sc]e|copying|notice)' -or $_.BaseName -match '(?i)^(OFL|UFL)$'
+        $isFontLicense = $_.Extension -eq '.txt' -and ((Test-Path -LiteralPath ([System.IO.Path]::ChangeExtension($_.FullName, '.ttf'))) -or (Test-Path -LiteralPath ([System.IO.Path]::ChangeExtension($_.FullName, '.otf'))))
+        ($isLicenseName -or $isFontLicense) -and $_.Extension -notin '.rs','.c','.h','.toml','.json','.lock','.ttf','.otf','.png','.jpg'
+    }
     foreach ($licenseFile in $licenseFiles) {
         if ($licenseFile.Length -lt 300000) {
             [void]$noticeText.AppendLine("`n--- $($licenseFile.Name) ---")

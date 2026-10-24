@@ -1,6 +1,6 @@
 # Licensing
 
-LaserCat 0.2.1 is licensed under **GNU Affero General Public License, version 3 only**, using the SPDX identifier **`AGPL-3.0-only`**. The complete, unmodified license text is in [LICENSE](../LICENSE). Project copyright and distribution notices are in [NOTICE](../NOTICE).
+LaserCat 0.2.2 is licensed under **GNU Affero General Public License, version 3 only**, using the SPDX identifier **`AGPL-3.0-only`**. The complete, unmodified license text is in [LICENSE](../LICENSE). Project copyright and distribution notices are in [NOTICE](../NOTICE).
 
 ## MIT and AGPL-3.0 at a glance
 
