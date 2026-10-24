@@ -144,6 +144,8 @@ pub struct LaserApp {
     preview_gcode: Vec<String>,
     preview_smax: f64,
     last_view: Option<(Pos2, f32)>,
+    /// Area left by the side/top/bottom panels this frame, where dialogs open by default.
+    dialog_area: Rect,
     position_settings: bool,
     show_grid: bool,
     sidebar_collapsed: bool,
@@ -271,6 +273,7 @@ impl LaserApp {
             preview_gcode: vec![],
             preview_smax: 1000.,
             last_view: None,
+            dialog_area: Rect::EVERYTHING,
             position_settings: false,
             show_grid: true,
             sidebar_collapsed: false,
@@ -379,7 +382,8 @@ impl LaserApp {
 }
 
 impl LaserApp {
-    pub fn draw(&mut self, ctx: &egui::Context) {
+    pub fn draw(&mut self, ui: &mut egui::Ui) {
+        let ctx = &ui.ctx().clone();
         self.transform_undo_committed = false;
         if ctx.input(|i| i.viewport().close_requested())
             && !self.allow_close
@@ -397,23 +401,23 @@ impl LaserApp {
             self.refresh_ports(ctx);
         }
         self.shortcuts(ctx);
-        self.top(ctx);
-        self.status_bar(ctx);
+        self.top(ui);
+        self.status_bar(ui);
         match self.mode {
             Mode::Prepare => {
                 if !self.sidebar_collapsed {
-                    self.left(ctx);
+                    self.left(ui);
                 }
-                self.canvas(ctx);
+                self.canvas(ui);
             }
             Mode::Preview => {
                 if !self.sidebar_collapsed {
-                    self.left(ctx);
+                    self.left(ui);
                 }
-                self.preview_panel(ctx);
-                self.canvas(ctx);
+                self.preview_panel(ui);
+                self.canvas(ui);
             }
-            Mode::Device => self.device(ctx),
+            Mode::Device => self.device(ui),
         }
         self.dialogs(ctx);
         if self.persist_device
@@ -441,7 +445,7 @@ impl LaserApp {
                 i.raw
                     .dropped_files
                     .iter()
-                    .filter_map(|f| f.path.clone())
+                    .map(|f| f.path().to_path_buf())
                     .collect::<Vec<_>>()
             });
             self.import_files(paths, ctx);
@@ -485,8 +489,8 @@ impl LaserApp {
     }
 }
 impl eframe::App for LaserApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        self.draw(ctx);
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        self.draw(ui);
     }
     fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
         if self.persist_device {
@@ -507,14 +511,17 @@ mod tests {
         ctx: &egui::Context,
         events: Vec<egui::Event>,
     ) -> egui::FullOutput {
-        ctx.run(
+        let mut output = ctx.run_ui(
             egui::RawInput {
                 screen_rect: Some(Rect::from_min_size(Pos2::ZERO, Vec2::new(1440., 900.))),
                 events,
                 ..Default::default()
             },
-            |ctx| app.draw(ctx),
-        )
+            |ui| app.draw(ui),
+        );
+        // Tests inspect shapes only; egui panics if texture deltas are dropped unapplied.
+        output.textures_delta.clear();
+        output
     }
     #[test]
     fn clean_save_discards_recovery_and_prunes_deleted_assets() {
@@ -738,6 +745,30 @@ mod tests {
         app.config_open = true;
         app.draft = app.project.machine.clone();
         frame(&mut app, &ctx, vec![]);
+    }
+    #[test]
+    fn mouse_wheel_over_the_bed_zooms_one_notch_and_shift_wheel_does_not() {
+        let ctx = egui::Context::default();
+        let mut app = LaserApp::demo(&ctx);
+        frame(&mut app, &ctx, vec![]);
+        let (origin, _) = app.last_view.unwrap();
+        let over_bed = origin + Vec2::new(20., -20.);
+        let wheel = |shift| egui::Event::MouseWheel {
+            unit: egui::MouseWheelUnit::Line,
+            delta: Vec2::new(0., 1.),
+            phase: egui::TouchPhase::Move,
+            source: egui::MouseWheelSource::Wheel,
+            modifiers: egui::Modifiers {
+                shift,
+                ..Default::default()
+            },
+        };
+        frame(&mut app, &ctx, vec![egui::Event::PointerMoved(over_bed)]);
+        frame(&mut app, &ctx, vec![wheel(true)]);
+        assert_eq!(app.zoom, 1.);
+        frame(&mut app, &ctx, vec![wheel(false)]);
+        // One line is 40 points, as in egui 0.31; zoom grows by exp(40 * 0.002).
+        assert!((app.zoom - 0.08_f32.exp()).abs() < 1e-5, "{}", app.zoom);
     }
     #[test]
     fn dragging_an_object_invalidates_the_preview_and_can_be_undone() {

@@ -19,10 +19,12 @@ pub(super) fn field(
     });
 }
 pub(super) fn theme(ctx: &egui::Context) {
-    let mut style = (*ctx.style()).clone();
+    let mut style = (*ctx.global_style()).clone();
     style.spacing.item_spacing = Vec2::new(7., 7.);
     style.spacing.button_padding = Vec2::new(9., 5.);
     style.spacing.interact_size = Vec2::new(32., 26.);
+    // Newer egui fades scroll-area edges by default; keep the egui 0.31 look.
+    style.spacing.scroll.fade.strength = 0.;
     style
         .text_styles
         .insert(egui::TextStyle::Body, egui::FontId::proportional(13.));
@@ -50,8 +52,10 @@ pub(super) fn theme(ctx: &egui::Context) {
     v.widgets.active.weak_bg_fill = Color32::from_rgb(204, 224, 249);
     v.widgets.active.bg_stroke = Stroke::new(1.0_f32, ACCENT);
     v.hyperlink_color = ACCENT;
+    // Keep the round slider handle of egui 0.31.
+    v.handle_shape = egui::style::HandleShape::Circle;
     style.visuals = v;
-    ctx.set_style(style);
+    ctx.set_global_style(style);
 }
 pub(super) fn pill(label: &str, width: f32) -> egui::Button<'_> {
     egui::Button::new(egui::RichText::new(label).color(Color32::WHITE))

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Update eframe/egui from 0.31 to 0.37. Panels now attach to the root `Ui` (`LaserApp::draw` takes `&mut egui::Ui`). A direct `egui` entry enables `monochrome_emoji_fonts`, which egui no longer includes in `default_fonts`, so symbols such as the object color swatches still render. The theme keeps the round slider handle and turns off the new scroll-area edge fade. Dialogs still open inside the area the panels leave free, and the object-overlap highlight keeps its previous tint. egui's own visual changes remain: text rasterization, disabled widgets drawn at half opacity, text fields as tall as buttons, and hint text in the weak text color.
 - Internationalize the interface (ADR 0005): English is the default language, Brazilian Portuguese stays available from the new **Language** menu, and the choice is saved in `preferences.json`. Core error messages are translated too.
 - Add translation catalogs in `locales/` and `tests/i18n.rs`, which rejects missing, stale, or hard-coded Portuguese strings.
 - Replace Portuguese shape identifiers with an `import::Shape` enum; code identifiers and source strings are English.

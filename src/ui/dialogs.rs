@@ -2,11 +2,16 @@
 use super::*;
 
 impl LaserApp {
+    /// Default dialog position: inside the area the panels leave free, as egui 0.31 placed
+    /// windows automatically. egui 0.32+ places them relative to the whole screen instead.
+    fn dialog_pos(&self) -> Pos2 {
+        self.dialog_area.min + Vec2::splat(16.)
+    }
     pub(super) fn editing_dialogs(&mut self, ctx: &egui::Context) {
         if self.transform_open && self.mode == Mode::Prepare {
             let mut open = true;
             egui::Window::new(tr("Transform selection")).open(&mut open).collapsible(false).resizable(false)
-                .default_pos(Pos2::new((ctx.screen_rect().width()/2.-150.).max(320.),120.)).default_width(330.)
+                .default_pos(Pos2::new((ctx.content_rect().width()/2.-150.).max(320.),120.)).default_width(330.)
                 .show(ctx,|ui| {
                     ui.label(tr("Bed coordinates · millimeters"));
                     let old=self.position_settings;self.position_settings=true;
@@ -22,7 +27,7 @@ impl LaserApp {
         if self.calibration_open {
             let mut open = true;
             let mut save = false;
-            egui::Window::new(tr("Calibration · power and speed")).open(&mut open).collapsible(false).resizable(false).default_width(420.).show(ctx,|ui| {
+            egui::Window::new(tr("Calibration · power and speed")).default_pos(self.dialog_pos()).open(&mut open).collapsible(false).resizable(false).default_width(420.).show(ctx,|ui| {
                 ui.label(tr("Template file with independent samples and labels."));
                 ui.horizontal(|ui| {ui.radio_value(&mut self.calibration.cut,false,tr("Fill engraving"));ui.radio_value(&mut self.calibration.cut,true,tr("Vector cutting"));});
                 field(ui,tr("Start power"),&mut self.calibration.min_power,0. ..=100.," %");
@@ -80,7 +85,7 @@ impl LaserApp {
         self.editing_dialogs(ctx);
         if self.license_open {
             let mut open = true;
-            egui::Window::new(tr("LaserCat · license and source code")).open(&mut open).default_width(620.).show(ctx,|ui| {
+            egui::Window::new(tr("LaserCat · license and source code")).default_pos(self.dialog_pos()).open(&mut open).default_width(620.).show(ctx,|ui| {
                 ui.strong("Copyright (c) 2026 LaserCat contributors");
                 ui.label("GNU Affero General Public License v3 only (AGPL-3.0-only)");
                 ui.label(tr("No warranty. You may redistribute the program under the terms of this license."));
@@ -93,7 +98,7 @@ impl LaserApp {
         if self.config_open {
             let locked = self.locked();
             let mut close = false;
-            egui::Window::new(tr("Configure machine")).collapsible(false).resizable(false).default_width(440.).show(ctx,|ui|{
+            egui::Window::new(tr("Configure machine")).default_pos(self.dialog_pos()).collapsible(false).resizable(false).default_width(440.).show(ctx,|ui|{
                 ui.label(tr("Enter the real work area. These values do not change the firmware."));ui.add_space(10.);
                 if ui.add_enabled(!locked,egui::Button::new(tr("Power / speed calibration matrix…"))).clicked() {self.calibration_open=true;}
                 ui.add_enabled_ui(!locked,|ui|{
@@ -130,6 +135,7 @@ impl LaserApp {
         if self.text_open {
             let mut action = None;
             egui::Window::new(tr("Add text"))
+                .default_pos(self.dialog_pos())
                 .collapsible(false)
                 .resizable(false)
                 .show(ctx, |ui| {
@@ -160,6 +166,7 @@ impl LaserApp {
         if self.export_open {
             let mut action = None;
             egui::Window::new(tr("Export G-code"))
+                .default_pos(self.dialog_pos())
                 .collapsible(false)
                 .resizable(false)
                 .show(ctx, |ui| {
@@ -213,7 +220,7 @@ impl LaserApp {
         }
         if self.pending.is_some() {
             let mut action = 0;
-            egui::Window::new(tr("Unsaved changes")).collapsible(false).resizable(false).show(ctx,|ui|{
+            egui::Window::new(tr("Unsaved changes")).default_pos(self.dialog_pos()).collapsible(false).resizable(false).show(ctx,|ui|{
                 ui.label(tr("There are unsaved changes or an operation in progress. Closing stops sending to the machine."));
                 ui.horizontal(|ui|{if ui.button(tr("Save and continue")).clicked(){action=1;}
 if ui.button(tr("Continue without saving")).clicked(){action=2;}
@@ -237,6 +244,7 @@ if ui.button(tr("Cancel")).clicked(){action=3;}});
         if self.recovery_available {
             let mut action = 0;
             egui::Window::new(tr("Recovery available"))
+                .default_pos(self.dialog_pos())
                 .collapsible(false)
                 .resizable(false)
                 .show(ctx, |ui| {

@@ -2,9 +2,10 @@
 use super::*;
 
 impl LaserApp {
-    pub(super) fn device(&mut self, ctx: &egui::Context) {
-        egui::SidePanel::right("device-controls")
-            .exact_width(if ctx.screen_rect().width() < 1200. {
+    pub(super) fn device(&mut self, root: &mut egui::Ui) {
+        let ctx = &root.ctx().clone();
+        egui::Panel::right("device-controls")
+            .exact_size(if ctx.content_rect().width() < 1200. {
                 350.
             } else {
                 400.
@@ -15,7 +16,7 @@ impl LaserApp {
                     .fill(Color32::from_gray(248))
                     .inner_margin(14.),
             )
-            .show(ctx, |ui| {
+            .show(root, |ui| {
                 egui::ScrollArea::vertical()
                     .id_salt("device-controls-scroll")
                     .show(ui, |ui| {
@@ -115,7 +116,8 @@ impl LaserApp {
                         ui.small(tr("Firmware parameters are shown for reference only."));
                     });
             });
-        egui::CentralPanel::default().frame(egui::Frame::NONE.fill(CANVAS).inner_margin(16.)).show(ctx,|ui| {
+        self.dialog_area = root.available_rect_before_wrap();
+        egui::CentralPanel::default().frame(egui::Frame::NONE.fill(CANVAS).inner_margin(16.)).show(root,|ui| {
             egui::ScrollArea::vertical().id_salt("device-dashboard").show(ui,|ui| {
                 let card=||egui::Frame::new().fill(Color32::WHITE).corner_radius(4.).inner_margin(16.);
                 card().show(ui,|ui| {
@@ -130,7 +132,7 @@ impl LaserApp {
                         if let Some(pos)=self.snapshot.position {ui.monospace(format!("X {:8.3}   Y {:8.3} mm",pos[0],pos[1]));}
                         ui.colored_label(if self.snapshot.referenced {ACCENT} else {ORANGE},if self.snapshot.referenced {tr("Origin set")} else {tr("Origin not set")});
                     });
-                    let (r,_)=ui.allocate_exact_size(Vec2::new(ui.available_width(),(ctx.screen_rect().height()*0.28).clamp(150.,270.)),Sense::hover());
+                    let (r,_)=ui.allocate_exact_size(Vec2::new(ui.available_width(),(ctx.content_rect().height()*0.28).clamp(150.,270.)),Sense::hover());
                     self.paint_job_overview(ui.painter(),r);
                     self.job_toolbar(ui);
                 });

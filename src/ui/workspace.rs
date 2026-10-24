@@ -2,22 +2,23 @@
 use super::*;
 
 impl LaserApp {
-    pub(super) fn left(&mut self, ctx: &egui::Context) {
-        let width = if ctx.screen_rect().width() < 1200. {
+    pub(super) fn left(&mut self, root: &mut egui::Ui) {
+        let ctx = &root.ctx().clone();
+        let width = if ctx.content_rect().width() < 1200. {
             310.
         } else {
             350.
         };
         let editable = self.mode == Mode::Prepare && !self.locked();
-        egui::SidePanel::left("workspace-sidebar")
-            .exact_width(width)
+        egui::Panel::left("workspace-sidebar")
+            .exact_size(width)
             .resizable(false)
             .frame(
                 egui::Frame::NONE
                     .fill(Color32::from_rgb(248, 248, 248))
                     .inner_margin(10.),
             )
-            .show(ctx, |ui| {
+            .show(root, |ui| {
                 section_toggle(ui, tr("Device"), &mut self.device_expanded);
                 if self.device_expanded {
                     egui::Frame::new()
@@ -628,7 +629,7 @@ impl LaserApp {
                     ] {
                         if ui.button(label).clicked() {
                             self.align(axis);
-                            ui.close_menu();
+                            ui.close();
                         }
                     }
                 });
@@ -659,7 +660,7 @@ impl LaserApp {
                                 chosen.append(&mut self.project.objects);
                                 self.project.objects = chosen;
                             }
-                            ui.close_menu();
+                            ui.close();
                         }
                     }
                 });
@@ -689,7 +690,7 @@ impl LaserApp {
         }
     }
     pub(super) fn bed_tools(&mut self, ctx: &egui::Context, viewport: Rect) {
-        egui::Area::new(egui::Id::new("plate-floating-tools"))
+        egui::Area::new(egui::Id::unique("plate-floating-tools"))
             .fixed_pos(Pos2::new(viewport.right() - 45., viewport.top() + 70.))
             .movable(false)
             .order(egui::Order::Foreground)
@@ -776,8 +777,10 @@ impl LaserApp {
                     });
             });
     }
-    pub(super) fn canvas(&mut self, ctx: &egui::Context) {
-        egui::CentralPanel::default().frame(egui::Frame::NONE.fill(CANVAS).inner_margin(egui::Margin::same(8))).show(ctx,|ui|{
+    pub(super) fn canvas(&mut self, root: &mut egui::Ui) {
+        let ctx = &root.ctx().clone();
+        self.dialog_area = root.available_rect_before_wrap();
+        egui::CentralPanel::default().frame(egui::Frame::NONE.fill(CANVAS).inner_margin(egui::Margin::same(8))).show(root,|ui|{
             self.canvas_toolbar(ui);
 
             let (response,painter)=ui.allocate_painter(ui.available_size(),Sense::click_and_drag());
@@ -789,7 +792,7 @@ impl LaserApp {
             let w=self.project.machine.width as f32;let h=self.project.machine.height as f32;
             let base=((viewport.width()-160.)/w).min((viewport.height()-130.)/h).max(0.001);
             if response.hovered(){
-                let scroll=ui.input(|i|i.raw_scroll_delta.y);
+                let line=ctx.options(|o|o.input_options.line_scroll_speed);let scroll=ui.input(|i|raw_wheel_delta_y(i,line));
                 if scroll!=0.{let previous=self.zoom;self.zoom=(self.zoom*(scroll*0.002).exp()).clamp(0.2,30.);
                     if let Some(pos)=ui.input(|i|i.pointer.hover_pos()){self.pan=(self.pan-(pos-viewport.center()))*(self.zoom/previous)+(pos-viewport.center());}}
             }
@@ -917,7 +920,7 @@ impl LaserApp {
                 for (i,o) in self.project.objects.iter().enumerate(){for other in &self.project.objects[i+1..]{
                     let a=o.bounds(self.project.asset(o.asset_id).unwrap());let b=other.bounds(self.project.asset(other.asset_id).unwrap());
                     if a.overlaps(b){let min=Point::new(a.min.x.max(b.min.x),a.min.y.max(b.min.y));let max=Point::new(a.max.x.min(b.max.x),a.max.y.min(b.max.y));
-                        painter.rect_filled(Rect::from_two_pos(screen(min),screen(max)),0.,Color32::from_rgba_unmultiplied(248,180,95,30));}
+                        painter.rect_filled(Rect::from_two_pos(screen(min),screen(max)),0.,OVERLAP_TINT);}
                 }}
             } else if let Some(plan)=&self.plan{
                 let mut last=None;let total=plan.strokes.iter().map(|s|s.points.len()).sum::<usize>();let stride=(total/80_000).max(1);let mut index=0;
@@ -943,3 +946,27 @@ impl LaserApp {
         });
     }
 }
+/// Unsmoothed vertical wheel delta in points for this frame, matching egui 0.31's
+/// `raw_scroll_delta.y` (shift turns scrolling horizontal; ctrl-scroll still counts).
+fn raw_wheel_delta_y(input: &egui::InputState, line: f32) -> f32 {
+    input
+        .events
+        .iter()
+        .map(|event| match event {
+            egui::Event::MouseWheel {
+                unit,
+                delta,
+                modifiers,
+                ..
+            } if !modifiers.shift => match unit {
+                egui::MouseWheelUnit::Point => delta.y,
+                egui::MouseWheelUnit::Line => line * delta.y,
+                egui::MouseWheelUnit::Page => input.viewport_rect().height() * delta.y,
+            },
+            _ => 0.,
+        })
+        .sum()
+}
+/// Overlap highlight: `(248, 180, 95)` at alpha 30, premultiplied in linear space as
+/// egui 0.31 did. egui 0.32+ premultiplies in gamma space, which made it nearly invisible.
+const OVERLAP_TINT: Color32 = Color32::from_rgba_premultiplied(93, 66, 31, 30);
