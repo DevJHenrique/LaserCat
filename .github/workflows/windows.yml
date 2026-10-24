@@ -8,7 +8,7 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: 1.97.1
@@ -20,7 +20,7 @@ jobs:
         run: ./scripts/Test-Project.ps1 -Profile release
       - name: Save test logs even when verification fails
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: LaserCat-test-logs
           path: target/test-results/
@@ -30,13 +30,13 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: 1.97.1
       - uses: Swatinem/rust-cache@v2
       - run: ./scripts/Build-Package.ps1
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: LaserCat-windows-x64
           path: dist/
