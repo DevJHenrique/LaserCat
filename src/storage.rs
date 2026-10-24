@@ -10,7 +10,7 @@ use std::{
     io::{Read, Write},
     path::{Path, PathBuf},
 };
-use zip::{write::FileOptions, ZipArchive, ZipWriter};
+use zip::{write::SimpleFileOptions, ZipArchive, ZipWriter};
 
 pub const PROJECT_EXTENSION: &str = "lcc";
 
@@ -42,7 +42,8 @@ pub fn save(path: &Path, p: &Project) -> Result<(), String> {
     let mut temp = tempfile::NamedTempFile::new_in(dir).map_err(|e| e.to_string())?;
     {
         let mut zip = ZipWriter::new(temp.as_file_mut());
-        let options = FileOptions::default().compression_method(zip::CompressionMethod::Deflated);
+        let options =
+            SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
         zip.start_file("manifest.json", options)
             .map_err(|e| e.to_string())?;
         zip.write_all(&manifest).map_err(|e| e.to_string())?;
