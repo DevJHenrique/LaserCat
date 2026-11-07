@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Update zip 9.1.0 → 9.1.3 and roxmltree 0.21.1 → 0.21.2 (patch releases; no behavior or `.lcc` format change).
+
 ## 0.2.2 — 2026-10-24
 
 - Update eframe/egui from 0.31 to 0.37. Panels now attach to the root `Ui` (`LaserApp::draw` takes `&mut egui::Ui`). A direct `egui` entry enables `monochrome_emoji_fonts`, which egui no longer includes in `default_fonts`, so symbols such as the object color swatches still render. The theme keeps the round slider handle and turns off the new scroll-area edge fade. Dialogs still open inside the area the panels leave free, and the object-overlap highlight keeps its previous tint. egui's own visual changes remain: text rasterization, disabled widgets drawn at half opacity, text fields as tall as buttons, and hint text in the weak text color.
